@@ -439,9 +439,11 @@
         } catch(e) { console.error(e); }
     }
 
-    function abrirModalArticulo(id = null) {
+    async function abrirModalArticulo(id = null) {
         editandoId = id;
         document.getElementById('modal-art-titulo').textContent = id ? 'Editar Artículo' : 'Nuevo Artículo';
+        
+        await cargarCategorias();
         
         if (id) {
             document.getElementById('art-codigo').value = '';
@@ -602,7 +604,6 @@
             document.getElementById('art-compra').value = a.precio_costo || 0;
             document.getElementById('art-stock').value = a.stock_real || 0;
             document.getElementById('art-marca').value = a.marca || '';
-            document.getElementById('art-categoria').value = a.categoria || '';
             document.getElementById('art-proveedor').value = a.proveedor || '';
             
             const compra = a.precio_costo || 0;
@@ -619,6 +620,9 @@
             } else {
                 document.getElementById('foto-preview').classList.add('hidden');
             }
+            
+            await cargarCategorias();
+            document.getElementById('art-categoria').value = a.categoria || '';
             
             document.getElementById('modal-articulo').classList.remove('hidden');
         } catch(e) {}
@@ -649,7 +653,7 @@
     // ── CATEGORÍAS ─────────────────────────────────────────
     async function cargarCategorias() {
         try {
-            const res = await fetch('/api/v1/categorias');
+            const res = await fetch('/api/v1/articulos/categorias');
             const data = await res.json();
             categoriasCache = data.data || data;
             
@@ -688,7 +692,7 @@
         if (!nombre) return Swal.fire({icon:'warning', title:'Ingresá el nombre', background:'#111', color:'#fff'});
 
         try {
-            await fetch('/api/v1/categorias', {
+            await fetch('/api/v1/articulos/categorias', {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({nombre})
@@ -713,7 +717,7 @@
         if (!result.isConfirmed) return;
 
         try {
-            await fetch(`/api/v1/categorias/${id}`, {method: 'DELETE'});
+            await fetch(`/api/v1/articulos/categorias/${id}`, {method: 'DELETE'});
             cargarCategorias();
         } catch(e) {}
     }
